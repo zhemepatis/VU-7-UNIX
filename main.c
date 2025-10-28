@@ -12,6 +12,10 @@ void startShell()
     char temp_char = '*';
     while (temp_char != EOF)
     {
+        // print shell prompt
+        printPrompt("user_name", "host_name", "curr_dir");
+
+        // process user input
         temp_char = getchar();
 
         // check if user entered a newline on empty prompt
@@ -26,32 +30,34 @@ void startShell()
             continue;
         }
 
-        // process user input as command input
-        char* command_buffer = malloc(sizeof(char) * MAX_INPUT_SIZE);
-        int command_length = 0;
+        // consider input as a command
+        char* buffer = malloc(sizeof(char) * MAX_INPUT_SIZE);
+        int buffer_length = 0;
 
-        // append first character to command
-        appendChar(command_buffer, &command_length, temp_char);
+        // append previous character to buffer
+        appendChar(buffer, &buffer_length, temp_char);
 
-        while (command_length < MAX_INPUT_SIZE)
+        // get the rest of the buffer
+        while ((temp_char = getchar()) != '\n' && buffer_length < MAX_INPUT_SIZE - 1)
         {
-            printf("loop iteration.\n");
-            temp_char = getchar();
-
-            // check if it is end of user input
-            if (temp_char == '\n')
-            {
-                command_buffer[command_length] = '\0';
-
-                // TODO: parse command
-                // TODO: execute command
-
-                break;
-            }
-            
-            appendChar(command_buffer, &command_length, temp_char);
+            appendChar(buffer, &buffer_length, temp_char);
         }
+
+        // append string termination character
+        buffer[buffer_length] = '\0';
+
+        // TODO: parse command
+        // parse command in the buffer
+
+
+        // TODO: execute command
+        // execute parsed command
     }
+}
+
+void printPrompt(char* user_name, char* host_name, char* curr_dir)
+{
+    printf("%s@%s:%s> ", user_name, host_name, curr_dir);
 }
 
 void appendChar(char* buffer, int* size_ptr, char character)

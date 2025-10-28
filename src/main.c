@@ -47,13 +47,9 @@ void startShell()
         // append string termination character
         buffer[buffer_length] = '\0';
 
-        // TODO: parse command
+        // parse & execute command
         Command command = parseCommand(buffer);
-        printf("Command: %d\n", command);
-
-
-        // TODO: execute command
-        // execute parsed command
+        executeCommand(command, buffer);
 
         free(buffer);
     }

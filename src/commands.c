@@ -34,3 +34,35 @@ Command parseCommand(char* buffer)
 
     return NEW_FOREGROUND_PROCESS;
 }
+
+void parseForegroundCommand(char* buffer)
+{
+    // TODO:
+}
+
+void executeCommand(Command command, char* buffer)
+{
+    if (command == HELP) 
+    {
+        executeHelpCommand();
+        return;
+    }
+
+    if (command == EXIT)
+    {
+        executeExitCommand();
+        return;
+    }
+}
+
+void executeHelpCommand()
+{
+    // TODO: add full implementation
+    printf("Printing help\n");
+}
+
+void executeExitCommand()
+{
+    printf("Thank you, come again!\n");
+    exit(0);
+}

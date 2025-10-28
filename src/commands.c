@@ -14,30 +14,30 @@ Command parseCommand(char* buffer)
 
     if (strncmp(buffer, "fg", 2) == 0)
     {
-        return FOREGROUND;
+        return MOVE_PROCESS_TO_FG;
     }
 
     if (strncmp(buffer, "bg", 2) == 0)
     {
-        return BACKGROUND;
+        return RESUME_BG_PROCESS;
     }
 
     if (strcmp(buffer, "kill") == 0)
     {
-        return KILL;
+        return KILL_PROCESS;
     }
 
     if (strstr(buffer, "&") != NULL && strlen(buffer) > 1)
     {
-        return NEW_BACKGROUND_PROCESS;
+        return CREATE_BG_PROCESS;
     }
 
-    return NEW_FOREGROUND_PROCESS;
+    return CREATE_FG_PROCESS;
 }
 
-void parseForegroundCommand(char* buffer)
+char* parseNewForegroundProcessesCommand(char* buffer)
 {
-    // TODO:
+    return trim(buffer);
 }
 
 void executeCommand(Command command, char* buffer)
@@ -53,6 +53,11 @@ void executeCommand(Command command, char* buffer)
         executeExitCommand();
         return;
     }
+
+    if (command == CREATE_FG_PROCESS)
+    {
+        executeNewForegroundProcessesCommand(buffer);
+    }
 }
 
 void executeHelpCommand()
@@ -65,4 +70,9 @@ void executeExitCommand()
 {
     printf("Thank you, come again!\n");
     exit(0);
+}
+
+char* executeNewForegroundProcessesCommand(char* buffer)
+{
+    
 }

@@ -13,13 +13,11 @@
         EXIT,
 
         // shell commands
-        FOREGROUND,
-        NEW_FOREGROUND_PROCESS,
-
-        BACKGROUND,
-        NEW_BACKGROUND_PROCESS,
-
-        KILL
+        CREATE_FG_PROCESS,
+        MOVE_PROCESS_TO_FG,
+        CREATE_BG_PROCESS,
+        RESUME_BG_PROCESS,
+        KILL_PROCESS
     } Command;
 
     Command parseCommand(char* buffer);

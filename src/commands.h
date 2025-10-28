@@ -21,6 +21,7 @@
     } Command;
 
     Command parseCommand(char* buffer);
+    char* parseCreateNewFgProcess(char* buffer);
 
     void executeCommand(Command command, char* buffer);
     void executeHelpCommand();

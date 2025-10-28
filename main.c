@@ -1,4 +1,5 @@
 #include "main.h"
+#include "commands.h"
 
 int main(int argc, char* args)
 {
@@ -47,11 +48,14 @@ void startShell()
         buffer[buffer_length] = '\0';
 
         // TODO: parse command
-        // parse command in the buffer
+        Command command = parseCommand(buffer);
+        printf("Command: %d\n", command);
 
 
         // TODO: execute command
         // execute parsed command
+
+        free(buffer);
     }
 }
 
@@ -64,5 +68,5 @@ void appendChar(char* buffer, int* size_ptr, char character)
 {
     int size = *size_ptr;
     buffer[size] = character;
-    (*size_ptr)++; 
+    (*size_ptr)++;
 }

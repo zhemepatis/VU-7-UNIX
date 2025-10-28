@@ -3,11 +3,14 @@
 
     #include <stdio.h>
     #include <stdlib.h>
+    #include <signal.h>
 
     #include "models/command.h"
+    #include "command_parsing.h"
 
     void executeCommand(Command command, char* buffer);
-    void executeHelpCommand();
-    void executeExitCommand();
+    void executeHelp();
+    void executeExit();
+    void executeKill(int process_num);
 
 #endif

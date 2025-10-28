@@ -35,6 +35,12 @@ Command parseCommand(char* buffer)
     return CREATE_FG_PROCESS;
 }
 
+int parseKill(char* buff)
+{
+    // TODO: implement
+    return 0;
+}
+
 char* parseCreateNewFgProcesses(char* buffer)
 {   
     // TODO: implement

@@ -4,13 +4,13 @@ void executeCommand(Command command, char* buffer)
 {
     if (command == HELP) 
     {
-        executeHelpCommand();
+        executeHelp();
         return;
     }
 
     if (command == EXIT)
     {
-        executeExitCommand();
+        executeExit();
         return;
     }
 
@@ -40,19 +40,30 @@ void executeCommand(Command command, char* buffer)
 
     if (command == KILL_PROCESS)
     {   
-        // TODO:
+        int arg = parseKill(buffer);
+        executeKill(arg);
         return;
     }
 }
 
-void executeHelpCommand()
+void executeHelp()
 {
     // TODO: add full implementation
     printf("Printing help\n");
 }
 
-void executeExitCommand()
+void executeExit()
 {
     printf("Thank you, come again!\n");
     exit(0);
+}
+
+void executeKill(int process_num) 
+{
+    int result = kill(process_num, SIGKILL);
+
+    if (result == -1)
+    {
+        printf("Error while trying to kill process: %d\n", process_num);
+    }
 }

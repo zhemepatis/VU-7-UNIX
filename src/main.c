@@ -1,5 +1,4 @@
 #include "main.h"
-#include "commands.h"
 
 int main(int argc, char* args)
 {
@@ -58,11 +57,4 @@ void startShell()
 void printPrompt(char* user_name, char* host_name, char* curr_dir)
 {
     printf("%s@%s:%s> ", user_name, host_name, curr_dir);
-}
-
-void appendChar(char* buffer, int* size_ptr, char character)
-{
-    int size = *size_ptr;
-    buffer[size] = character;
-    (*size_ptr)++;
 }

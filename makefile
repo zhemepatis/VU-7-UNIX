@@ -10,7 +10,7 @@ TARGET = $(BIN_DIR)/main.$(EXEC_EXT)
 # build rule
 build: $(TARGET)
 
-$(BIN_DIR)/main.$(EXEC_EXT): $(OBJ_DIR)/main.o $(OBJ_DIR)/commands.o | $(BIN_DIR)
+$(BIN_DIR)/main.$(EXEC_EXT): $(OBJ_DIR)/main.o $(OBJ_DIR)/string_operations.o $(OBJ_DIR)/command_parsing.o $(OBJ_DIR)/command_logic.o | $(BIN_DIR)
 	gcc $^ -o $@
 
 $(BIN_DIR)/%.$(EXEC_EXT): $(OBJ_DIR)/%.o | $(BIN_DIR)

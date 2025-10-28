@@ -35,7 +35,7 @@ Command parseCommand(char* buffer)
     return CREATE_FG_PROCESS;
 }
 
-char* parseCreateNewFgProcess(char* buffer)
+char* parseCreateNewFgProcesses(char* buffer)
 {
     return trim(buffer);
 }

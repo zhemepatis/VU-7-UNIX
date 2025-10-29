@@ -41,7 +41,38 @@ int parseKill(char* buff)
     return 0;
 }
 
-void parseCreateFgProcess(char* buffer)
+ParseResult parseCreateFgProcess(char* buffer)
 {   
     trim(buffer);
+    return VALID_COMMAND;
+}
+
+ParseResult parseCreateBgProcess(char* buffer)
+{
+    trim(buffer);
+
+    int buffer_length = strlen(buffer);
+    char* ampersand_ptr = strstr(buffer, "&");
+
+    if (ampersand_ptr == NULL)
+    {
+        printf("Error: not a backgroud process requested\n");
+        return INVALID_COMMAND;
+    }
+
+    if (strstr(ampersand_ptr + 1 , "&") != NULL)
+    {
+        printf("Error: multiple background processes in one command are not supported\n");
+        return INVALID_COMMAND;
+    }
+
+    if (ampersand_ptr != buffer + buffer_length - 1)
+    {
+        printf("Error: background commands with ampersand in the middle are not supported\n");
+        return INVALID_COMMAND;
+    }
+
+    // remove ampersand character
+    *ampersand_ptr = '\0';
+    return VALID_COMMAND;
 }

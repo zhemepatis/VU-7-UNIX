@@ -3,7 +3,8 @@
     
     #include <sys/types.h>
 
-    typedef struct {
+    typedef struct
+    {
         pid_t process_id;
         char* command;
     } Process;

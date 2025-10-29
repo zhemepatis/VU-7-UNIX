@@ -5,11 +5,15 @@
     #include <stdlib.h>
     #include <string.h>
 
+    #include "models/parse_result.h"
     #include "models/command.h"
     #include "string_operations.h"
 
     Command parseCommand(char* buffer);
-    void parseCreateFgProcess(char* buffer);
+
+    ParseResult parseCreateFgProcess(char* buffer);
+    ParseResult parseCreateBgProcess(char* buffer);
+
     int parseKill(char* buff);
 
 #endif

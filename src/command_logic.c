@@ -16,19 +16,28 @@ void executeCommand(Command command, char* buffer)
 
     if (command == CREATE_FG_PROCESS)
     {
-        parseCreateFgProcess(buffer);
-        executeCreateFgProcess(buffer);
+        ParseResult parseResult = parseCreateFgProcess(buffer);
+        if (parseResult != INVALID_COMMAND)
+        {
+            executeCreateFgProcess(buffer);
+        }
+
+        return;
+    }
+
+    if (command == CREATE_BG_PROCESS)
+    {
+        ParseResult parseResult = parseCreateBgProcess(buffer);
+        if (parseResult != INVALID_COMMAND)
+        {
+            executeCreateBgProcess(buffer);
+        }
+
         return;
     }
 
     if (command == MOVE_PROCESS_TO_FG)
     {
-        // TODO:
-        return;
-    }
-
-    if (command == CREATE_BG_PROCESS)
-    {   
         // TODO:
         return;
     }
@@ -62,6 +71,11 @@ void executeExit()
 void executeCreateFgProcess(char* command)
 {
     createProccess(command, FOREGROUND);
+}
+
+void executeCreateBgProcess(char* command)
+{
+    createProccess(command, BACKGROUND);
 }
 
 void executeKill(int process_num) 

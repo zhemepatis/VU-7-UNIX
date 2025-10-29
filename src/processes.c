@@ -58,12 +58,11 @@ void parentProcess(char* command, pid_t process_id, ProcessType type)
 {
     if (type == BACKGROUND)
     {
-        // TODO:
+        printf("Background process started with process id: %d\n", process_id);
     }
 
     if (type == FOREGROUND)
     {
-        // TODO:
         waitpid(process_id, NULL, 0);
     }
 }

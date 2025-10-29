@@ -8,10 +8,10 @@ int main(int argc, char* args)
 void initShell()
 {
     // initialize behaviour on external signals
-    signal(SIGINT,  SIG_DFL);
-    signal(SIGQUIT, SIG_DFL);
-    signal(SIGTSTP, SIG_DFL);
-    signal(SIGTTIN, SIG_DFL);
+    signal(SIGINT,  SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
 
     signal(SIGCHLD, &onChildSignal);
 }

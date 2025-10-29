@@ -35,26 +35,35 @@ void createProccess(char* command, ProcessType type)
 
 void parentProcess(char* command, pid_t process_id, ProcessType type)
 {
+    addProcessToList(process_id, command, type);
+
     if (type == FOREGROUND)
     {
-        
+        waitForProcess(process_id);
         return;
     }
 
-    addProcessToList(command, process_id);
 }
 
 void childProcess(char* command, pid_t process_id, ProcessType type)
 {
-    
     // initialize behaviour on external signals
     //     signal(SIGINT,  SIG_DFL);
     //     signal(SIGQUIT, SIG_DFL);
     //     signal(SIGTSTP, SIG_DFL);
     //     signal(SIGTTIN, SIG_DFL);
     
-    //     signal(SIGCHLD, &onChildSignal);
-    
+    signal(SIGCHLD, &onChildSignal);
+
+    if (type == FOREGROUND)
+    {
+        // TODO:
+    }
+    else if (type == BACKGROUND)
+    {
+        printf("Background process (pid: %d) has been started\n", process_id);
+    }
+
     // get args
     int argument_count;
     char* args[MAX_ARGS];
@@ -63,13 +72,59 @@ void childProcess(char* command, pid_t process_id, ProcessType type)
     args[argument_count] = NULL;
     
     // run the command
-    printf("Background process started with process id: %d\n", process_id);
     execvp(args[0], args);
 }
 
 void onChildSignal(int signal)
 {
-    // TODO: what to do, when child exits
+    int termination_status;
+    pid_t process_id;
+
+    // check if process is valid
+    if (process_id <= 0)
+    {
+        return;
+    }
+
+    // check if process is in process list
+    Process* process = getByProcessId(process_id);
+    if (process == NULL)
+    {
+        return;
+    }
+    
+    // finished foreground processes are removed in wait loop 
+    if (WIFEXITED(termination_status) && (*process).type == FOREGROUND)
+    {
+        return;
+    }
+
+    // remove finished background job
+    if (WIFEXITED(termination_status) && (*process).type == BACKGROUND)
+    {
+        printf("Background process (pid: %d) finished its job\n", process_id);
+        removeProcessFromList(process_id);
+        return;
+    }
+
+    // check if process was terminated by external signal
+    if (WIFSIGNALED(termination_status))
+    {
+        printf("Process (pid: %d) was killed by external signal\n", process_id);
+        removeProcessFromList(process_id);
+        return;
+    }
+
+    // check if process was stopped
+    if (WIFSTOPPED(termination_status))
+    {
+        (*process).state = STOPPED;
+        printf("Process (pid: %d) was stopped\n", process_id);
+        return;
+    }
+
+    printf("undefined case\n");
+    removeProcessFromList(process_id);
 }
 
 Process* getByProcessId(pid_t process_id)
@@ -85,16 +140,19 @@ Process* getByProcessId(pid_t process_id)
     return NULL;
 }
 
-void addProcessToList(char* command, pid_t process_id)
+void addProcessToList(pid_t process_id, char* command, ProcessType type)
 {
-    if (process_count == MAX_PROCESS_NUM)
+    if (process_count == MAX_PROCESS_NUM - 1)
     {
         printf("Error: maximum number of processes has been reached");
     }
-
+    
     // add process to list
     process_list[process_count].process_id = process_id;
     strcpy(process_list[process_count].command, command);
+    process_list[process_count].state = TO_BE_STARTED;
+    process_list[process_count].type = type;
+
     process_count++;
 }
 
@@ -136,9 +194,7 @@ void waitForProcess(pid_t process_id)
         return;
     }
 
-    int termination_status;
-
-    while (waitpid(process_id, &termination_status, WNOHANG) == 0)
+    while (waitpid(process_id, NULL, WNOHANG) == 0)
     {
         if ((*process).state == STOPPED)
         {
@@ -148,4 +204,3 @@ void waitForProcess(pid_t process_id)
 
     removeProcessFromList(process_id);
 }
-

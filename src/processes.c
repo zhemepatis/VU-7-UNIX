@@ -85,13 +85,6 @@ void childProcess(char* command, pid_t process_id, ProcessType type)
     split(command, args, &argument_count, MAX_ARGS - 1);
     args[argument_count] = NULL;
 
-    printf("PRINTING ARGUMENTS:\n");
-    printf("%d\n", argument_count);
-
-    for (int i = 0; i < argument_count; ++i) {
-        printf("%s\n", args[i]);
-    }
-
     // run the command
     execvp(args[0], args);
 }

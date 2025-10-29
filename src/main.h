@@ -7,8 +7,7 @@
     #include "string_operations.h"
     #include "command_logic.h"
     #include "command_parsing.h"
-
-    #define MAX_INPUT_SIZE 256
+    #include "constants.h"
 
     int main(int argc, char* args);
     

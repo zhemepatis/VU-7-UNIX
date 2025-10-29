@@ -25,24 +25,28 @@ void removeProcessFromList(int process_num)
 void createProccess(char* command, ProcessType type)
 {
     pid_t process_id = fork();
-
+    
     // check for errors
     if (process_id == EAGAIN)
     {
-        printf("Error: system cannot create a new porcess\n");
+        perror("System cannot create a new process");
         return;
     }
-
+    
     if (process_id == ENOMEM)
     {
-        printf("Error: not enough memory to create a new process\n");
+        perror("Not enough memory to create a new process");
         return;
     }
-
+    
     // execute command (child)
     if (process_id == 0)
     {
         childProcess(command, process_id, type);
+        
+        // child shouldn't return here if command succeefully executed
+        perror("Error executing command");
+        exit(EXIT_FAILURE);
     }
 
     // keep track of new process (parent)
@@ -81,10 +85,15 @@ void childProcess(char* command, pid_t process_id, ProcessType type)
     split(command, args, &argument_count, MAX_ARGS - 1);
     args[argument_count] = NULL;
 
+    printf("PRINTING ARGUMENTS:\n");
+    printf("%d\n", argument_count);
+
+    for (int i = 0; i < argument_count; ++i) {
+        printf("%s\n", args[i]);
+    }
+
     // run the command
     execvp(args[0], args);
-
-    printf("Error: something went wrong executing command '%s'\n", command);
 }
 
 void onChildSignal(int signal)

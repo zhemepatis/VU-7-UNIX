@@ -34,12 +34,14 @@ void trim(char *str)
 void split(char* command, char** token_array, int* token_num, int max_token_num)
 {
   int idx = 0;
-  char* token;
+  char* token = strtok(command, " ");
 
-  while ((token = strtok(command, " ")) != NULL && idx < max_token_num)
+  while (token != NULL && idx < max_token_num)
   {
     token_array[idx] = token;
     idx++;
+
+    token = strtok(NULL, " ");
   }
 
   *token_num = idx;

@@ -7,10 +7,14 @@
 
     #include "models/command.h"
     #include "command_parsing.h"
+    #include "processes.h"
 
     void executeCommand(Command command, char* buffer);
+
     void executeHelp();
     void executeExit();
+    
+    void executeCreateFgProcess(char* command);
     void executeKill(int process_num);
 
 #endif

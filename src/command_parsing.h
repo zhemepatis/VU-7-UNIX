@@ -9,7 +9,7 @@
     #include "string_operations.h"
 
     Command parseCommand(char* buffer);
+    void parseCreateFgProcess(char* buffer);
     int parseKill(char* buff);
-    char* parseCreateNewFgProcesses(char* buffer);
 
 #endif

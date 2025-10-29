@@ -16,7 +16,8 @@ void executeCommand(Command command, char* buffer)
 
     if (command == CREATE_FG_PROCESS)
     {
-        // TODO:
+        parseCreateFgProcess(buffer);
+        executeCreateFgProcess(buffer);
         return;
     }
 
@@ -56,6 +57,11 @@ void executeExit()
 {
     printf("Thank you, come again!\n");
     exit(0);
+}
+
+void executeCreateFgProcess(char* command)
+{
+    createProccess(command, FOREGROUND);
 }
 
 void executeKill(int process_num) 

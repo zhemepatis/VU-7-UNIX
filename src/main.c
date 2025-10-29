@@ -5,6 +5,17 @@ int main(int argc, char* args)
     startShell();
 }
 
+void initShell()
+{
+    // initialize behaviour on external signals
+    signal(SIGINT,  SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+    signal(SIGTSTP, SIG_DFL);
+    signal(SIGTTIN, SIG_DFL);
+
+    signal(SIGCHLD, &onChildSignal);
+}
+
 void startShell()
 {
     // TODO: print greeting message (required)

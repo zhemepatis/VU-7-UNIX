@@ -41,8 +41,7 @@ int parseKill(char* buff)
     return 0;
 }
 
-char* parseCreateNewFgProcesses(char* buffer)
+void parseCreateFgProcess(char* buffer)
 {   
-    // TODO: implement
     trim(buffer);
 }

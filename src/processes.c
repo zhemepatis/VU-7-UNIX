@@ -2,26 +2,6 @@
 
 Process process_list[MAX_PROCESS_NUM];
 
-void addProcessToList(char* command, pid_t process_id)
-{
-    if (process_count == MAX_PROCESS_NUM)
-    {
-        printf("Error: maximum number of processes has been reached");
-    }
-
-    // add process to list
-    process_list[process_count].process_id = process_id;
-    strcpy(process_list[process_count].command, command);
-    process_count++;
-}
-
-void removeProcessFromList(int process_num)
-{
-    int processRemoved = true;
-
-    // TODO: finish   
-}
-
 void createProccess(char* command, ProcessType type)
 {
     pid_t process_id = fork();
@@ -50,46 +30,122 @@ void createProccess(char* command, ProcessType type)
     }
 
     // keep track of new process (parent)
-    // TODO:
     parentProcess(command, process_id, type);
 }
 
 void parentProcess(char* command, pid_t process_id, ProcessType type)
 {
-    if (type == BACKGROUND)
-    {
-        printf("Background process started with process id: %d\n", process_id);
-    }
-
     if (type == FOREGROUND)
     {
-        waitpid(process_id, NULL, 0);
+        
+        return;
     }
+
+    addProcessToList(command, process_id);
 }
 
 void childProcess(char* command, pid_t process_id, ProcessType type)
 {
+    
     // initialize behaviour on external signals
-//     signal(SIGINT,  SIG_DFL);
-//     signal(SIGQUIT, SIG_DFL);
-//     signal(SIGTSTP, SIG_DFL);
-//     signal(SIGTTIN, SIG_DFL);
-
-//     signal(SIGCHLD, &onChildSignal);
-
+    //     signal(SIGINT,  SIG_DFL);
+    //     signal(SIGQUIT, SIG_DFL);
+    //     signal(SIGTSTP, SIG_DFL);
+    //     signal(SIGTTIN, SIG_DFL);
+    
+    //     signal(SIGCHLD, &onChildSignal);
+    
     // get args
     int argument_count;
     char* args[MAX_ARGS];
-
+    
     split(command, args, &argument_count, MAX_ARGS - 1);
     args[argument_count] = NULL;
-
+    
     // run the command
+    printf("Background process started with process id: %d\n", process_id);
     execvp(args[0], args);
 }
 
 void onChildSignal(int signal)
 {
     // TODO: what to do, when child exits
+}
+
+Process* getByProcessId(pid_t process_id)
+{
+    for (int idx = 0; idx < process_count; ++idx)
+    {
+        if (process_list[idx].process_id == process_id)
+        {
+            return &(process_list[idx]);
+        }
+    }
+
+    return NULL;
+}
+
+void addProcessToList(char* command, pid_t process_id)
+{
+    if (process_count == MAX_PROCESS_NUM)
+    {
+        printf("Error: maximum number of processes has been reached");
+    }
+
+    // add process to list
+    process_list[process_count].process_id = process_id;
+    strcpy(process_list[process_count].command, command);
+    process_count++;
+}
+
+void removeProcessFromList(pid_t process_id)
+{
+    int removal_needed = false;
+    int idx;
+
+    for (int i = 0; i < process_count; ++i)
+    {
+        if (process_list[i].process_id == process_id)
+        {
+            idx = i;
+            removal_needed = true;
+            break;
+        }
+    }
+
+    if (!removal_needed)
+    {
+        return;
+    }
+
+    // remove process from processs list
+    for (int i = idx; i < process_count - 1; ++i)
+    {
+        process_list[i] = process_list[i + 1];
+    }
+
+    process_count--;
+}
+
+void waitForProcess(pid_t process_id)
+{
+    Process* process = getByProcessId(process_id);
+    
+    if (process == NULL)
+    {
+        return;
+    }
+
+    int termination_status;
+
+    while (waitpid(process_id, &termination_status, WNOHANG) == 0)
+    {
+        if ((*process).state == STOPPED)
+        {
+            return;
+        }
+    }
+
+    removeProcessFromList(process_id);
 }
 

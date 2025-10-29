@@ -11,12 +11,13 @@
     #include <sys/wait.h>
 
     #include "globals.h"
-    #include "models/process.h"
-    #include "models/process_type.h"
+    #include "structs/process.h"
+    #include "enums/process_type.h"
+    #include "enums/process_state.h"
     #include "string_operations.h"
 
     void addProcessToList(char* command, pid_t process_id);
-    void removeProcessFromList(int process_num);
+    void removeProcessFromList(pid_t process_id);
 
     void createProccess(char* command, ProcessType type);
     void parentProcess(char* command, pid_t process_id, ProcessType type);

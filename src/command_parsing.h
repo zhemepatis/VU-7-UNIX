@@ -5,8 +5,8 @@
     #include <stdlib.h>
     #include <string.h>
 
-    #include "models/parse_result.h"
-    #include "models/command.h"
+    #include "enums/parse_result.h"
+    #include "enums/command.h"
     #include "string_operations.h"
 
     Command parseCommand(char* buffer);

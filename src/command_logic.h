@@ -5,7 +5,7 @@
     #include <stdlib.h>
     #include <signal.h>
 
-    #include "models/command.h"
+    #include "enums/command.h"
     #include "command_parsing.h"
     #include "processes.h"
 

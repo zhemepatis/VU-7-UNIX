@@ -2,23 +2,26 @@
 
 int main(int argc, char* args)
 {
+    initShell();
     startShell();
 }
 
 void initShell()
 {
+    global_group_id = getpgrp();
+
     // initialize behaviour on external signals
-    signal(SIGINT,  SIG_IGN);
-    signal(SIGQUIT, SIG_IGN);
-    signal(SIGTSTP, SIG_IGN);
-    signal(SIGTTIN, SIG_IGN);
+    // signal(SIGINT,  SIG_IGN);
+    // signal(SIGQUIT, SIG_IGN);
+    // signal(SIGTSTP, SIG_IGN);
+    // signal(SIGTTIN, SIG_IGN);
 
     signal(SIGCHLD, &onChildSignal);
 }
 
 void startShell()
 {
-    // TODO: print greeting message (required)
+    printf("Shell program has been started\n");
 
     char temp_char = '*';
     while (temp_char != EOF)

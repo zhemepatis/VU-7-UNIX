@@ -4,24 +4,19 @@ Process process_list[MAX_PROCESS_NUM];
 
 void createProccess(char* command, ProcessType type)
 {
-    pid_t process_id = fork();
+    int fork_result = fork();
     
     // check for errors
-    if (process_id == EAGAIN)
+    if (fork_result == -1)
     {
-        perror("System cannot create a new process");
+        perror("Error while creating a fork");
         return;
     }
-    
-    if (process_id == ENOMEM)
-    {
-        perror("Not enough memory to create a new process");
-        return;
-    }
-    
+
     // execute command (child)
-    if (process_id == 0)
+    if (fork_result == 0)
     {
+        pid_t process_id = getpid();
         childProcess(command, process_id, type);
         
         // child shouldn't return here if command succeefully executed
@@ -30,34 +25,43 @@ void createProccess(char* command, ProcessType type)
     }
 
     // keep track of new process (parent)
-    parentProcess(command, process_id, type);
+    parentProcess(command, fork_result, type);
 }
 
-void parentProcess(char* command, pid_t process_id, ProcessType type)
+void parentProcess(char* command, pid_t child_process_id, ProcessType type)
 {
-    addProcessToList(process_id, command, type);
+    addProcessToList(child_process_id, command, type);
 
     if (type == FOREGROUND)
     {
-        waitForProcess(process_id);
+        waitForProcess(child_process_id);
+
+        signal(SIGTTOU, SIG_IGN);
+        tcsetpgrp(STDIN_FILENO, global_group_id);
+        signal(SIGTTOU, SIG_DFL);
+
         return;
     }
 
+    if (type == BACKGROUND)
+    {
+        // TODO: what parent does for bg processes?
+    }
 }
 
 void childProcess(char* command, pid_t process_id, ProcessType type)
 {
     // initialize behaviour on external signals
-    //     signal(SIGINT,  SIG_DFL);
-    //     signal(SIGQUIT, SIG_DFL);
-    //     signal(SIGTSTP, SIG_DFL);
-    //     signal(SIGTTIN, SIG_DFL);
+    signal(SIGINT,  SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+    signal(SIGTSTP, SIG_DFL);
+    signal(SIGTTIN, SIG_DFL);
     
     signal(SIGCHLD, &onChildSignal);
 
     if (type == FOREGROUND)
     {
-        // TODO:
+        tcsetpgrp(STDIN_FILENO, process_id);
     }
     else if (type == BACKGROUND)
     {
@@ -75,56 +79,43 @@ void childProcess(char* command, pid_t process_id, ProcessType type)
     execvp(args[0], args);
 }
 
-void onChildSignal(int signal)
-{
-    int termination_status;
+void onChildSignal(int signal) {
     pid_t process_id;
+    int termination_status;
 
-    // check if process is valid
-    if (process_id <= 0)
-    {
-        return;
-    }
+    while ((process_id = waitpid(-1, &termination_status, WNOHANG | WUNTRACED)) > 0) {
+        Process* process = getByProcessId(process_id);
+        
+        // skip processes not from application list
+        if (process == NULL)
+        {
+            continue;
+        }
 
-    // check if process is in process list
-    Process* process = getByProcessId(process_id);
-    if (process == NULL)
-    {
-        return;
-    }
-    
-    // finished foreground processes are removed in wait loop 
-    if (WIFEXITED(termination_status) && (*process).type == FOREGROUND)
-    {
-        return;
-    }
+        // check if it's finished background process
+        if (WIFEXITED(termination_status) && (*process).type == BACKGROUND)
+        {
+            printf("Background process (pid: %d) finished its job\n", process_id);
+            removeProcessFromList(process_id);
+            continue;
+        }
 
-    // remove finished background job
-    if (WIFEXITED(termination_status) && (*process).type == BACKGROUND)
-    {
-        printf("Background process (pid: %d) finished its job\n", process_id);
-        removeProcessFromList(process_id);
-        return;
-    }
+        // check if it's externally terminated background job
+        if (WIFSIGNALED(termination_status) && (*process).type == BACKGROUND)
+        {
+            printf("Background process (pid: %d) was terminated by external signal\n", process_id);
+            removeProcessFromList(process_id);
+            continue;
+        }
 
-    // check if process was terminated by external signal
-    if (WIFSIGNALED(termination_status))
-    {
-        printf("Process (pid: %d) was killed by external signal\n", process_id);
-        removeProcessFromList(process_id);
-        return;
+        // check if process was stopped
+        if (WIFSTOPPED(termination_status))
+        {
+            changeProcessState(process_id, STOPPED);
+            printf("Process (pid: %d) was stopped\n", process_id);
+            continue;
+        }
     }
-
-    // check if process was stopped
-    if (WIFSTOPPED(termination_status))
-    {
-        (*process).state = STOPPED;
-        printf("Process (pid: %d) was stopped\n", process_id);
-        return;
-    }
-
-    printf("undefined case\n");
-    removeProcessFromList(process_id);
 }
 
 Process* getByProcessId(pid_t process_id)
@@ -194,13 +185,30 @@ void waitForProcess(pid_t process_id)
         return;
     }
 
-    while (waitpid(process_id, NULL, WNOHANG) == 0)
+    int termination_status;
+    waitpid(process_id, &termination_status, WUNTRACED);
+
+    // TODO:
+    // resolve problem when program is stopped not because of a signall
+    // is it possible with fg processes? 
+
+    // check if process was stopped
+    if (WIFSTOPPED(termination_status))
     {
-        if ((*process).state == STOPPED)
-        {
-            return;
-        }
+        changeProcessState(process_id, STOPPED);
+        return;
     }
 
     removeProcessFromList(process_id);
+}
+
+void changeProcessState(pid_t process_id, ProcessState new_state)
+{
+    Process* process = getByProcessId(process_id);
+    if (process == NULL)
+    {
+        return;
+    }
+
+    (*process).state = new_state;
 }

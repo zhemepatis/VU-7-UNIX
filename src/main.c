@@ -11,10 +11,10 @@ void initShell()
     global_group_id = getpgrp();
 
     // initialize behaviour on external signals
-    // signal(SIGINT,  SIG_IGN);
-    // signal(SIGQUIT, SIG_IGN);
-    // signal(SIGTSTP, SIG_IGN);
-    // signal(SIGTTIN, SIG_IGN);
+    signal(SIGINT,  SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
 
     signal(SIGCHLD, &onChildSignal);
 }
@@ -27,7 +27,7 @@ void startShell()
     while (temp_char != EOF)
     {
         // print shell prompt
-        printPrompt("user_name", "host_name", "curr_dir");
+        printf("shell> ");
 
         // process user input
         temp_char = getchar();
@@ -66,9 +66,4 @@ void startShell()
 
         free(buffer);
     }
-}
-
-void printPrompt(char* user_name, char* host_name, char* curr_dir)
-{
-    printf("%s@%s:%s> ", user_name, host_name, curr_dir);
 }

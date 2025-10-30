@@ -42,20 +42,30 @@ void executeCommand(Command command, char* buffer)
         return;
     }
 
-    if (command == MOVE_PROCESS_TO_FG)
+    if (command == RESUME_AS_FG_PROCESS)
     {
-        // TODO:
+        int process_num = parseResumeInFg(buffer);
+        if (process_num != -1)
+        {
+            executeResumeFgProcess(process_num);
+        }
+
         return;
     }
+    
+    if (command == RESUME_AS_BG_PROCESS)
+    {
+        int process_num = parseResumeInBg(buffer);
+        if (process_num != -1)
+        {
+            executeResumeBgProcess(process_num);
+        }
 
-    if (command == RESUME_BG_PROCESS)
-    {   
-        // TODO:
         return;
     }
 
     if (command == KILL_PROCESS)
-    {   
+    {
         int arg = parseKill(buffer);
         executeKill(arg);
         return;
@@ -102,6 +112,16 @@ void executeCreateFgProcess(char* command)
 void executeCreateBgProcess(char* command)
 {
     createProccess(command, BACKGROUND);
+}
+
+void executeResumeFgProcess(int process_num)
+{
+    resumeProcess(process_num, FOREGROUND);
+}
+
+void executeResumeBgProcess(int process_num)
+{
+    resumeProcess(process_num, BACKGROUND);
 }
 
 void executeKill(int process_num)

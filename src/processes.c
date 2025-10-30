@@ -42,10 +42,6 @@ void childProcess(char* command, pid_t process_id, ProcessType type)
     
     signal(SIGCHLD, &onChildSignal);
 
-    // if (type == FOREGROUND)
-    // {
-    //     tcsetpgrp(STDIN_FILENO, process_id);
-    // }
     if (type == BACKGROUND)
     {
         printf("Background process (pid: %d) has been started\n", process_id);
@@ -127,10 +123,18 @@ void waitForProcess(pid_t process_id)
     removeProcessFromList(process_id);
 }
 
-void resumeProcess(pid_t process_id, ProcessType type)
+void resumeProcess(int process_num, ProcessType type)
 {
-    changeProcessState(process_id, RUNNING);
-    changeProcessType(process_id, type);
+    if (process_num >= process_count)
+    {
+        return;
+    }
+
+    Process* process = getByProcessId(process_num);
+    pid_t process_id = (*process).process_id;
+
+    changeProcessState((*process).state, RUNNING);
+    changeProcessType((*process).type, type);
 
     if (type == FOREGROUND)
     {
@@ -147,11 +151,6 @@ void resumeProcess(pid_t process_id, ProcessType type)
         signal(SIGTTOU, SIG_DFL);
 
         return;
-    }
-
-    if (type == BACKGROUND)
-    {
-        // TODO: what parent does for bg processes?
     }
 }
 
@@ -188,6 +187,16 @@ Process* getByProcessId(pid_t process_id)
     }
 
     return NULL;
+}
+
+Process* getByProcessNum(int process_num)
+{
+    if (process_num >= process_count)
+    {
+        return NULL;
+    }
+
+    return &(process_list[process_num]);
 }
 
 void addProcessToList(pid_t process_id, char* command, ProcessType type)

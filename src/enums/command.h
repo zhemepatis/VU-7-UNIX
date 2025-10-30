@@ -9,9 +9,9 @@
         // shell commands
         JOBS,
         CREATE_FG_PROCESS,
-        MOVE_PROCESS_TO_FG,
         CREATE_BG_PROCESS,
-        RESUME_BG_PROCESS,
+        RESUME_AS_FG_PROCESS,
+        RESUME_AS_BG_PROCESS,
         KILL_PROCESS
     } Command;
 

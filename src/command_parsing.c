@@ -19,12 +19,12 @@ Command parseCommand(char* buffer)
 
     if (strncmp(buffer, "fg", 2) == 0)
     {
-        return MOVE_PROCESS_TO_FG;
+        return RESUME_AS_FG_PROCESS;
     }
 
     if (strncmp(buffer, "bg", 2) == 0)
     {
-        return RESUME_BG_PROCESS;
+        return RESUME_AS_BG_PROCESS;
     }
 
     if (strcmp(buffer, "kill") == 0)
@@ -80,4 +80,36 @@ ParseResult parseCreateBgProcess(char* buffer)
     // remove ampersand character
     *ampersand_ptr = '\0';
     return VALID_COMMAND;
+}
+
+int parseResumeInFg(char* buffer)
+{
+    int argument_count;
+    char* args[MAX_ARGS];
+
+    split(buffer, args, &argument_count, MAX_ARGS);
+
+    if (argument_count > 2)
+    {
+        printf("Error: too many arguments\n");
+        return -1;
+    }
+
+    return atoi(args[1]);
+}
+
+int parseResumeInBg(char* buffer)
+{
+    int argument_count;
+    char* args[MAX_ARGS];
+
+    split(buffer, args, &argument_count, MAX_ARGS);
+
+    if (argument_count > 2)
+    {
+        printf("Error: too many arguments\n");
+        return -1;
+    }
+
+    return atoi(args[1]);
 }

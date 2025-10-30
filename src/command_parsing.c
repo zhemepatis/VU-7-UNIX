@@ -12,6 +12,11 @@ Command parseCommand(char* buffer)
         return EXIT;
     }
 
+    if (strcmp(buffer, "jobs") == 0)
+    {
+        return JOBS;
+    }
+
     if (strncmp(buffer, "fg", 2) == 0)
     {
         return MOVE_PROCESS_TO_FG;

@@ -14,6 +14,12 @@ void executeCommand(Command command, char* buffer)
         return;
     }
 
+    if (command == JOBS)
+    {
+        executeJobs();
+        return;
+    }
+
     if (command == CREATE_FG_PROCESS)
     {
         ParseResult parseResult = parseCreateFgProcess(buffer);
@@ -68,6 +74,26 @@ void executeExit()
     exit(0);
 }
 
+void executeJobs()
+{
+    for (int i = 0; i < process_count; ++i)
+    {
+        char* status;
+        Process curr_process = process_list[i];
+
+        if (curr_process.state == RUNNING)
+        {
+            printf("[%d] %d RUNNING\t%s\n", i + 1, curr_process.process_id, curr_process.command);
+            continue;
+        }
+
+        if (curr_process.state == STOPPED)
+        {
+            printf("[%d] %d STOPPING\t%s\n", i + 1, curr_process.process_id, curr_process.command);
+        }
+    }
+}
+
 void executeCreateFgProcess(char* command)
 {
     createProccess(command, FOREGROUND);
@@ -78,7 +104,7 @@ void executeCreateBgProcess(char* command)
     createProccess(command, BACKGROUND);
 }
 
-void executeKill(int process_num) 
+void executeKill(int process_num)
 {
     int result = kill(process_num, SIGKILL);
 

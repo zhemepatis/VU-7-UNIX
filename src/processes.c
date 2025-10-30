@@ -1,7 +1,5 @@
 #include "processes.h"
 
-Process process_list[MAX_PROCESS_NUM];
-
 void createProccess(char* command, ProcessType type)
 {
     int fork_result = fork();
@@ -31,22 +29,7 @@ void createProccess(char* command, ProcessType type)
 void parentProcess(char* command, pid_t child_process_id, ProcessType type)
 {
     addProcessToList(child_process_id, command, type);
-
-    if (type == FOREGROUND)
-    {
-        waitForProcess(child_process_id);
-
-        signal(SIGTTOU, SIG_IGN);
-        tcsetpgrp(STDIN_FILENO, global_group_id);
-        signal(SIGTTOU, SIG_DFL);
-
-        return;
-    }
-
-    if (type == BACKGROUND)
-    {
-        // TODO: what parent does for bg processes?
-    }
+    resumeProcess(child_process_id, type);
 }
 
 void childProcess(char* command, pid_t process_id, ProcessType type)
@@ -59,11 +42,11 @@ void childProcess(char* command, pid_t process_id, ProcessType type)
     
     signal(SIGCHLD, &onChildSignal);
 
-    if (type == FOREGROUND)
-    {
-        tcsetpgrp(STDIN_FILENO, process_id);
-    }
-    else if (type == BACKGROUND)
+    // if (type == FOREGROUND)
+    // {
+    //     tcsetpgrp(STDIN_FILENO, process_id);
+    // }
+    if (type == BACKGROUND)
     {
         printf("Background process (pid: %d) has been started\n", process_id);
     }
@@ -118,6 +101,82 @@ void onChildSignal(int signal) {
     }
 }
 
+void waitForProcess(pid_t process_id)
+{
+    Process* process = getByProcessId(process_id);
+    
+    if (process == NULL)
+    {
+        return;
+    }
+
+    int termination_status;
+    waitpid(process_id, &termination_status, WUNTRACED);
+
+    // TODO:
+    // resolve problem when program is stopped not because of a signall
+    // is it possible with fg processes? 
+
+    // check if process was stopped
+    if (WIFSTOPPED(termination_status))
+    {
+        changeProcessState(process_id, STOPPED);
+        return;
+    }
+
+    removeProcessFromList(process_id);
+}
+
+void resumeProcess(pid_t process_id, ProcessType type)
+{
+    changeProcessState(process_id, RUNNING);
+    changeProcessType(process_id, type);
+
+    if (type == FOREGROUND)
+    {
+        // giving console control to child process
+        signal(SIGTTOU, SIG_IGN);
+        tcsetpgrp(STDIN_FILENO, process_id);
+        signal(SIGTTOU, SIG_DFL);
+
+        waitForProcess(process_id);
+
+        // getting console control back
+        signal(SIGTTOU, SIG_IGN);
+        tcsetpgrp(STDIN_FILENO, global_group_id);
+        signal(SIGTTOU, SIG_DFL);
+
+        return;
+    }
+
+    if (type == BACKGROUND)
+    {
+        // TODO: what parent does for bg processes?
+    }
+}
+
+void changeProcessState(pid_t process_id, ProcessState new_state)
+{
+    Process* process = getByProcessId(process_id);
+    if (process == NULL)
+    {
+        return;
+    }
+
+    (*process).state = new_state;
+}
+
+void changeProcessType(pid_t process_id, ProcessType new_type)
+{
+    Process* process = getByProcessId(process_id);
+    if (process == NULL)
+    {
+        return;
+    }
+
+    (*process).type = new_type;
+}
+
 Process* getByProcessId(pid_t process_id)
 {
     for (int idx = 0; idx < process_count; ++idx)
@@ -141,8 +200,8 @@ void addProcessToList(pid_t process_id, char* command, ProcessType type)
     // add process to list
     process_list[process_count].process_id = process_id;
     strcpy(process_list[process_count].command, command);
-    process_list[process_count].state = TO_BE_STARTED;
     process_list[process_count].type = type;
+    process_list[process_count].state = READY;
 
     process_count++;
 }
@@ -174,41 +233,4 @@ void removeProcessFromList(pid_t process_id)
     }
 
     process_count--;
-}
-
-void waitForProcess(pid_t process_id)
-{
-    Process* process = getByProcessId(process_id);
-    
-    if (process == NULL)
-    {
-        return;
-    }
-
-    int termination_status;
-    waitpid(process_id, &termination_status, WUNTRACED);
-
-    // TODO:
-    // resolve problem when program is stopped not because of a signall
-    // is it possible with fg processes? 
-
-    // check if process was stopped
-    if (WIFSTOPPED(termination_status))
-    {
-        changeProcessState(process_id, STOPPED);
-        return;
-    }
-
-    removeProcessFromList(process_id);
-}
-
-void changeProcessState(pid_t process_id, ProcessState new_state)
-{
-    Process* process = getByProcessId(process_id);
-    if (process == NULL)
-    {
-        return;
-    }
-
-    (*process).state = new_state;
 }

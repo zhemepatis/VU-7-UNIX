@@ -7,6 +7,7 @@
         HELP,
         EXIT,
         // shell commands
+        JOBS,
         CREATE_FG_PROCESS,
         MOVE_PROCESS_TO_FG,
         CREATE_BG_PROCESS,

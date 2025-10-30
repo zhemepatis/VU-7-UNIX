@@ -17,6 +17,8 @@
     void executeCreateFgProcess(char* command);
     void executeCreateBgProcess(char* command);
 
+    void executeJobs();
+
     void executeKill(int process_num);
 
 #endif

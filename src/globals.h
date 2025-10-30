@@ -3,12 +3,11 @@
 
     #include <sys/types.h>
 
-    #define MAX_PROCESS_NUM 10
-    
-    #define MAX_INPUT_SIZE 256
-    #define MAX_ARGS 64
+    #include "structs/process.h"
+    #include "constants.h"
 
     extern int process_count;
     extern pid_t global_group_id;
+    extern Process process_list[MAX_PROCESS_NUM];
 
 #endif

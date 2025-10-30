@@ -3,7 +3,7 @@
 
     typedef enum
     {
-        TO_BE_STARTED,
+        READY,
         RUNNING,
         STOPPED,
         DONE

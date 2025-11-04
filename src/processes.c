@@ -31,8 +31,9 @@ void parentProcess(char* command, pid_t child_process_id, ProcessType type)
 {
     addProcessToList(child_process_id, command, type);
     
-    Process* process = getByProcessId(child_process_id);
-    resumeProcess((*process).process_num, type);
+    Process* process_ptr = getByProcessId(child_process_id);
+    Process process = *process_ptr;
+    resumeProcess(process.process_num, type);
 }
 
 void childProcess(char* command, pid_t process_id, ProcessType type)
@@ -66,16 +67,18 @@ void onChildSignal(int signal) {
     int termination_status;
 
     while ((process_id = waitpid(-1, &termination_status, WNOHANG | WUNTRACED)) > 0) {
-        Process* process = getByProcessId(process_id);
+        Process* process_ptr = getByProcessId(process_id);
         
         // skip processes not from application list
-        if (process == NULL)
+        if (process_ptr == NULL)
         {
             continue;
         }
+        
+        Process process = *process_ptr;
 
         // check if it's finished background process
-        if (WIFEXITED(termination_status) && (*process).type == BACKGROUND)
+        if (WIFEXITED(termination_status) && process.type == BACKGROUND)
         {
             printf("Background process (pid: %d) finished its job\n", process_id);
             removeProcessFromList(process_id);
@@ -83,7 +86,7 @@ void onChildSignal(int signal) {
         }
 
         // check if it's externally terminated background job
-        if (WIFSIGNALED(termination_status) && (*process).type == BACKGROUND)
+        if (WIFSIGNALED(termination_status) && process.type == BACKGROUND)
         {
             printf("Background process (pid: %d) was terminated by external signal\n", process_id);
             removeProcessFromList(process_id);

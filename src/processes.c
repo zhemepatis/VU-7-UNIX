@@ -81,7 +81,7 @@ void onChildSignal(int signal) {
         if (WIFEXITED(termination_status) && process.type == BACKGROUND)
         {
             printf("Background process (pid: %d) finished its job\n", process_id);
-            removeProcessFromList(process_id);
+            removeProcessFromList(process.process_num);
             continue;
         }
 
@@ -89,7 +89,7 @@ void onChildSignal(int signal) {
         if (WIFSIGNALED(termination_status) && process.type == BACKGROUND)
         {
             printf("Background process (pid: %d) was terminated by external signal\n", process_id);
-            removeProcessFromList(process_id);
+            removeProcessFromList(process.process_num);
             continue;
         }
 
@@ -105,12 +105,14 @@ void onChildSignal(int signal) {
 
 void waitForProcess(pid_t process_id)
 {
-    Process* process = getByProcessId(process_id);
+    Process* process_ptr = getByProcessId(process_id);
     
-    if (process == NULL)
+    if (process_ptr == NULL)
     {
         return;
     }
+
+    Process process = *process_ptr;
 
     int termination_status;
     waitpid(process_id, &termination_status, WUNTRACED);
@@ -122,11 +124,12 @@ void waitForProcess(pid_t process_id)
     // check if process was stopped
     if (WIFSTOPPED(termination_status))
     {
-        changeProcessState(process_id, STOPPED);
+        changeProcessState(process.process_num, STOPPED);
         return;
     }
 
-    removeProcessFromList(process_id);
+    changeProcessState(process.process_num, DONE);
+    removeProcessFromList(process.process_num);
 }
 
 void resumeProcess(int process_num, ProcessType type)
@@ -150,7 +153,7 @@ void resumeProcess(int process_num, ProcessType type)
     if (type == FOREGROUND)
     {
         pid_t process_id = process.process_id;
-        
+
         // giving console control to child process
         signal(SIGTTOU, SIG_IGN);
         tcsetpgrp(STDIN_FILENO, process_id);

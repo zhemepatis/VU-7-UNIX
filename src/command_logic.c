@@ -86,8 +86,6 @@ void executeExit()
 
 void executeJobs()
 {
-    printf("process count: %d\n", process_count);
-
     for (int i = 0; i < process_count; ++i)
     {
         char* status;

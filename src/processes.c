@@ -134,7 +134,7 @@ void waitForProcess(pid_t process_id)
 
 void resumeProcess(int process_num, ProcessType type)
 {
-    if (process_num >= process_count)
+    if (process_num > process_count)
     {
         return;
     }
@@ -144,9 +144,10 @@ void resumeProcess(int process_num, ProcessType type)
     {
         return;
     }
-
+    
     Process process = (*process_ptr);
     
+    // TODO: these two dont work seems to me
     changeProcessState(process_num, RUNNING);
     changeProcessType(process_num, type);
     
@@ -207,12 +208,12 @@ Process* getByProcessId(pid_t process_id)
 
 Process* getByProcessNum(int process_num)
 {
-    if (process_num >= process_count)
+    if (process_num > process_count)
     {
         return NULL;
     }
 
-    return &(process_list[process_num]);
+    return &(process_list[process_num - 1]);
 }
 
 void addProcessToList(pid_t process_id, char* command, ProcessType type)
@@ -223,7 +224,7 @@ void addProcessToList(pid_t process_id, char* command, ProcessType type)
     }
     
     // add process to list
-    process_list[process_count].process_num = process_count;
+    process_list[process_count].process_num = process_count + 1;
     process_list[process_count].process_id = process_id;
     strcpy(process_list[process_count].command, command);
     process_list[process_count].type = type;
@@ -234,7 +235,7 @@ void addProcessToList(pid_t process_id, char* command, ProcessType type)
 
 void removeProcessFromList(int process_num)
 {
-    if (process_num >= process_count)
+    if (process_num > process_count)
     {
         return;
     }

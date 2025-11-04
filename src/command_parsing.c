@@ -27,7 +27,7 @@ Command parseCommand(char* buffer)
         return RESUME_AS_BG_PROCESS;
     }
 
-    if (strcmp(buffer, "kill") == 0)
+    if (strncmp(buffer, "kill", 4) == 0)
     {
         return KILL_PROCESS;
     }
@@ -38,12 +38,6 @@ Command parseCommand(char* buffer)
     }
 
     return CREATE_FG_PROCESS;
-}
-
-int parseKill(char* buff)
-{
-    // TODO: implement
-    return 0;
 }
 
 ParseResult parseCreateFgProcess(char* buffer)
@@ -100,6 +94,24 @@ int parseResumeInFg(char* buffer)
 
 int parseResumeInBg(char* buffer)
 {
+    int argument_count;
+    char* args[MAX_ARGS];
+
+    split(buffer, args, &argument_count, MAX_ARGS);
+
+    if (argument_count > 2)
+    {
+        printf("Error: too many arguments\n");
+        return -1;
+    }
+
+    return atoi(args[1]);
+}
+
+int parseKill(char* buffer)
+{
+    trim(buffer);
+
     int argument_count;
     char* args[MAX_ARGS];
 

@@ -66,8 +66,12 @@ void executeCommand(Command command, char* buffer)
 
     if (command == KILL_PROCESS)
     {
-        int arg = parseKill(buffer);
-        executeKill(arg);
+        int process_num = parseResumeInBg(buffer);
+        if (process_num != -1)
+        {
+            executeKill(process_num);
+        }
+
         return;
     }
 }
@@ -139,8 +143,18 @@ void executeResumeBgProcess(int process_num)
 
 void executeKill(int process_num)
 {
-    int result = kill(process_num, SIGKILL);
+    Process* process_ptr = getByProcessNum(process_num);
+    
+    // check if such process exists
+    if (process_ptr == NULL)
+    {
+        return;
+    }
 
+    // kill specified process
+    Process process = *process_ptr;
+
+    int result = kill(process.process_id, SIGKILL);
     if (result == -1)
     {
         printf("Error while trying to kill process: %d\n", process_num);

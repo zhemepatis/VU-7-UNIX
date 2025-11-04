@@ -11,10 +11,10 @@ void initShell()
     global_group_id = getpgrp();
 
     // initialize behaviour on external signals
-    signal(SIGINT,  SIG_IGN);
-    signal(SIGQUIT, SIG_IGN);
-    signal(SIGTSTP, SIG_IGN);
-    signal(SIGTTIN, SIG_IGN);
+    signal(SIGINT,  SIG_IGN); // ^C signal
+    signal(SIGTSTP, SIG_IGN); // ^Z signal
+    signal(SIGTTIN, SIG_IGN); // terminal input signal
+    signal(SIGTTOU, SIG_IGN); // terminal output signal
 
     signal(SIGCHLD, &onChildSignal);
 }

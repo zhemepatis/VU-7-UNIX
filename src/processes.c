@@ -37,11 +37,12 @@ void parentProcess(char* command, pid_t child_process_id, ProcessType type)
 
 void childProcess(char* command, pid_t process_id, ProcessType type)
 {
-    // initialize behaviour on external signals
-    signal(SIGINT,  SIG_DFL);
-    signal(SIGQUIT, SIG_DFL);
+    setpgid(0, 0);
+
+    // initialize process behaviour on external signals
+    signal(SIGINT, SIG_DFL);
     signal(SIGTSTP, SIG_DFL);
-    signal(SIGTTIN, SIG_DFL);
+    signal(SIGTTOU, SIG_DFL);
     
     signal(SIGCHLD, &onChildSignal);
 
@@ -143,21 +144,28 @@ void resumeProcess(int process_num, ProcessType type)
     {
         return;
     }
-    
+
     Process process = (*process_ptr);
-    
-    // TODO: these two dont work seems to me
+    pid_t process_id = process.process_id;
+
+    // resume process if previously it was stopped
+    if (process.state == STOPPED && type != STOPPED)
+    {
+        int result = kill(process_id, SIGCONT);
+
+        if (result < 0)
+        {
+            perror("Failed to move process back from suspension!");
+        }
+    }
+
     changeProcessState(process_num, RUNNING);
     changeProcessType(process_num, type);
     
     if (type == FOREGROUND)
     {
-        pid_t process_id = process.process_id;
-
-        // giving console control to child process
-        signal(SIGTTOU, SIG_IGN);
+        // give console control to child process
         tcsetpgrp(STDIN_FILENO, process_id);
-        signal(SIGTTOU, SIG_DFL);
 
         waitForProcess(process_id);
 

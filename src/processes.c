@@ -35,103 +35,6 @@ void parentProcess(char* command, pid_t child_process_id, ProcessType type)
     resumeProcess(process.process_num, type);
 }
 
-void childProcess(char* command, pid_t process_id, ProcessType type)
-{
-    setpgid(0, 0);
-
-    // initialize process behaviour on external signals
-    signal(SIGINT, SIG_DFL);
-    signal(SIGTSTP, SIG_DFL);
-    signal(SIGTTOU, SIG_DFL);
-    
-    signal(SIGCHLD, &onChildSignal);
-
-    if (type == BACKGROUND)
-    {
-        printf("Background process (pid: %d) has been started\n", process_id);
-    }
-
-    // get args
-    int argument_count;
-    char* args[MAX_ARGS];
-    
-    split(command, args, &argument_count, MAX_ARGS - 1);
-    args[argument_count] = NULL;
-    
-    // run the command
-    execvp(args[0], args);
-}
-
-void onChildSignal(int signal) {
-    pid_t process_id;
-    int termination_status;
-
-    while ((process_id = waitpid(-1, &termination_status, WNOHANG | WUNTRACED)) > 0) {
-        Process* process_ptr = getByProcessId(process_id);
-        
-        // skip processes not from application list
-        if (process_ptr == NULL)
-        {
-            continue;
-        }
-        
-        Process process = *process_ptr;
-
-        // check if it's finished background process
-        if (WIFEXITED(termination_status) && process.type == BACKGROUND)
-        {
-            printf("Background process (pid: %d) finished its job\n", process_id);
-            removeProcessFromList(process.process_num);
-            continue;
-        }
-
-        // check if it's externally terminated job
-        if (WIFSIGNALED(termination_status))
-        {
-            printf("Process (pid: %d) was terminated by external signal\n", process_id);
-            removeProcessFromList(process.process_num);
-            continue;
-        }
-
-        // check if process was stopped
-        if (WIFSTOPPED(termination_status))
-        {
-            changeProcessState(process_id, STOPPED);
-            printf("Process (pid: %d) was stopped\n", process_id);
-            continue;
-        }
-    }
-}
-
-void waitForProcess(pid_t process_id)
-{
-    Process* process_ptr = getByProcessId(process_id);
-    
-    if (process_ptr == NULL)
-    {
-        return;
-    }
-
-    Process process = *process_ptr;
-
-    int termination_status;
-    waitpid(process_id, &termination_status, WUNTRACED);
-
-    // TODO:
-    // resolve problem when program is stopped not because of a signall
-    // is it possible with fg processes? 
-
-    // check if process was stopped
-    if (WIFSTOPPED(termination_status))
-    {
-        changeProcessState(process.process_num, STOPPED);
-        return;
-    }
-
-    changeProcessState(process.process_num, DONE);
-    removeProcessFromList(process.process_num);
-}
-
 void resumeProcess(int process_num, ProcessType type)
 {
     if (process_num > process_count)
@@ -178,26 +81,102 @@ void resumeProcess(int process_num, ProcessType type)
     }
 }
 
-void changeProcessState(int process_num, ProcessState new_state)
+void childProcess(char* command, pid_t process_id, ProcessType type)
 {
-    Process* process_ptr = getByProcessNum(process_num);
-    if (process_ptr == NULL)
+    setpgid(0, 0);
+
+    // initialize process behaviour on external signals
+    signal(SIGINT, SIG_DFL);
+    signal(SIGTSTP, SIG_DFL);
+    signal(SIGTTOU, SIG_DFL);
+    
+    signal(SIGCHLD, &onChildSignal);
+
+    if (type == BACKGROUND)
     {
-        return;
+        printf("Background process (pid: %d) has been started\n", process_id);
     }
 
-    (*process_ptr).state = new_state;
+    // get args
+    int argument_count;
+    char* args[MAX_ARGS];
+    
+    split(command, args, &argument_count, MAX_ARGS - 1);
+    args[argument_count] = NULL;
+    
+    // run the command
+    execvp(args[0], args);
 }
 
-void changeProcessType(int process_num, ProcessType new_type)
+void waitForProcess(pid_t process_id)
 {
-    Process* process_ptr = getByProcessNum(process_num);
+    Process* process_ptr = getByProcessId(process_id);
+    
     if (process_ptr == NULL)
     {
         return;
     }
 
-    (*process_ptr).type = new_type;
+    Process process = *process_ptr;
+
+    int termination_status;
+    waitpid(process_id, &termination_status, WUNTRACED);
+
+    // TODO:
+    // resolve problem when program is stopped not because of a signall
+    // is it possible with fg processes? 
+
+    // check if process was stopped
+    if (WIFSTOPPED(termination_status))
+    {
+        changeProcessState(process.process_num, STOPPED);
+        return;
+    }
+
+    changeProcessState(process.process_num, DONE);
+    removeProcessFromList(process.process_num);
+}
+
+
+void onChildSignal(int signal) {
+    pid_t process_id;
+    int termination_status;
+
+    while ((process_id = waitpid(-1, &termination_status, WNOHANG | WUNTRACED)) > 0) {
+        Process* process_ptr = getByProcessId(process_id);
+        
+        // skip processes not from application list
+        if (process_ptr == NULL)
+        {
+            continue;
+        }
+        
+        Process process = *process_ptr;
+
+        // check if it's finished background process
+        if (WIFEXITED(termination_status) && process.type == BACKGROUND)
+        {
+            printf("Background process (pid: %d) finished its job\n", process_id);
+            removeProcessFromList(process.process_num);
+            continue;
+        }
+
+        // check if it's externally terminated job
+        if (WIFSIGNALED(termination_status))
+        {
+            printf("Process (pid: %d) was terminated by external signal\n", process_id);
+            removeProcessFromList(process.process_num);
+            continue;
+        }
+
+        // check if process was stopped
+        if (WIFSTOPPED(termination_status))
+        {
+            changeProcessState(process_id, STOPPED);
+            printf("Process (pid: %d) was stopped\n", process_id);
+            continue;
+        }
+    }
 }
 
 Process* getByProcessId(pid_t process_id)
@@ -238,6 +217,28 @@ void addProcessToList(pid_t process_id, char* command, ProcessType type)
     process_list[process_count].state = READY;
 
     process_count++;
+}
+
+void changeProcessState(int process_num, ProcessState new_state)
+{
+    Process* process_ptr = getByProcessNum(process_num);
+    if (process_ptr == NULL)
+    {
+        return;
+    }
+
+    (*process_ptr).state = new_state;
+}
+
+void changeProcessType(int process_num, ProcessType new_type)
+{
+    Process* process_ptr = getByProcessNum(process_num);
+    if (process_ptr == NULL)
+    {
+        return;
+    }
+
+    (*process_ptr).type = new_type;
 }
 
 void removeProcessFromList(int process_num)

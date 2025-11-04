@@ -3,13 +3,14 @@
 void createProccess(char* command, ProcessType type)
 {
     int fork_result = fork();
-    
+
     // check for errors
     if (fork_result == -1)
     {
         perror("Error while creating a fork");
         return;
     }
+
 
     // execute command (child)
     if (fork_result == 0)
@@ -29,7 +30,9 @@ void createProccess(char* command, ProcessType type)
 void parentProcess(char* command, pid_t child_process_id, ProcessType type)
 {
     addProcessToList(child_process_id, command, type);
-    resumeProcess(child_process_id, type);
+    
+    Process* process = getByProcessId(child_process_id);
+    resumeProcess((*process).process_num, type);
 }
 
 void childProcess(char* command, pid_t process_id, ProcessType type)
@@ -130,11 +133,17 @@ void resumeProcess(int process_num, ProcessType type)
         return;
     }
 
-    Process* process = getByProcessId(process_num);
-    pid_t process_id = (*process).process_id;
+    Process* process_ptr = getByProcessNum(process_num);
+    if (process_ptr == NULL)
+    {
+        return;
+    }
 
-    changeProcessState((*process).state, RUNNING);
-    changeProcessType((*process).type, type);
+    Process process = (*process_ptr);
+    pid_t process_id = process.process_id;
+    
+    changeProcessState(process.state, RUNNING);
+    changeProcessType(process.type, type);
 
     if (type == FOREGROUND)
     {
@@ -178,11 +187,11 @@ void changeProcessType(pid_t process_id, ProcessType new_type)
 
 Process* getByProcessId(pid_t process_id)
 {
-    for (int idx = 0; idx < process_count; ++idx)
+    for (int i = 0; i < process_count; ++i)
     {
-        if (process_list[idx].process_id == process_id)
+        if (process_list[i].process_id == process_id)
         {
-            return &(process_list[idx]);
+            return &(process_list[i]);
         }
     }
 
@@ -207,6 +216,7 @@ void addProcessToList(pid_t process_id, char* command, ProcessType type)
     }
     
     // add process to list
+    process_list[process_count].process_num = process_count;
     process_list[process_count].process_id = process_id;
     strcpy(process_list[process_count].command, command);
     process_list[process_count].type = type;
@@ -215,30 +225,18 @@ void addProcessToList(pid_t process_id, char* command, ProcessType type)
     process_count++;
 }
 
-void removeProcessFromList(pid_t process_id)
+void removeProcessFromList(int process_num)
 {
-    int removal_needed = false;
-    int idx;
-
-    for (int i = 0; i < process_count; ++i)
-    {
-        if (process_list[i].process_id == process_id)
-        {
-            idx = i;
-            removal_needed = true;
-            break;
-        }
-    }
-
-    if (!removal_needed)
+    if (process_num >= process_count)
     {
         return;
     }
-
+    
     // remove process from processs list
-    for (int i = idx; i < process_count - 1; ++i)
+    for (int i = process_num; i < process_count - 1; ++i)
     {
         process_list[i] = process_list[i + 1];
+        process_list[i].process_num = i;
     }
 
     process_count--;

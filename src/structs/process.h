@@ -9,6 +9,7 @@
 
     typedef struct
     {
+        int process_num;
         pid_t process_id;
         char command[256];
         ProcessType type;

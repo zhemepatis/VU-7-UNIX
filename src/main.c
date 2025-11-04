@@ -43,7 +43,7 @@ void startShell()
         {
             continue;
         }
-
+        
         // consider input as a command
         char* buffer = malloc(sizeof(char) * MAX_INPUT_SIZE);
         int buffer_length = 0;

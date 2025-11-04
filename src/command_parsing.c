@@ -83,9 +83,9 @@ int parseResumeInFg(char* buffer)
 
     split(buffer, args, &argument_count, MAX_ARGS);
 
-    if (argument_count > 2)
+    if (argument_count != 2)
     {
-        printf("Error: too many arguments\n");
+        printf("Error: incorrect number of arguments. Usage: fg [process-number]\n");
         return -1;
     }
 
@@ -99,9 +99,9 @@ int parseResumeInBg(char* buffer)
 
     split(buffer, args, &argument_count, MAX_ARGS);
 
-    if (argument_count > 2)
+    if (argument_count != 2)
     {
-        printf("Error: too many arguments\n");
+        printf("Error: incorrect number of arguments. Usage: bg [process-number]\n");
         return -1;
     }
 
@@ -117,9 +117,9 @@ int parseKill(char* buffer)
 
     split(buffer, args, &argument_count, MAX_ARGS);
 
-    if (argument_count > 2)
+    if (argument_count != 2)
     {
-        printf("Error: too many arguments\n");
+        printf("Error: incorrect number of arguments. Usage: kill [process-number]\n");
         return -1;
     }
 

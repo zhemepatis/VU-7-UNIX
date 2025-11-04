@@ -66,7 +66,7 @@ void executeCommand(Command command, char* buffer)
 
     if (command == KILL_PROCESS)
     {
-        int process_num = parseResumeInBg(buffer);
+        int process_num = parseKill(buffer);
         if (process_num != -1)
         {
             executeKill(process_num);

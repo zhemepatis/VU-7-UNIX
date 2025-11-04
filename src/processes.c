@@ -85,10 +85,10 @@ void onChildSignal(int signal) {
             continue;
         }
 
-        // check if it's externally terminated background job
-        if (WIFSIGNALED(termination_status) && process.type == BACKGROUND)
+        // check if it's externally terminated job
+        if (WIFSIGNALED(termination_status))
         {
-            printf("Background process (pid: %d) was terminated by external signal\n", process_id);
+            printf("Process (pid: %d) was terminated by external signal\n", process_id);
             removeProcessFromList(process.process_num);
             continue;
         }

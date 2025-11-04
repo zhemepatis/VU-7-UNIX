@@ -2,6 +2,8 @@
 
 Command parseCommand(char* buffer)
 {
+    trim(buffer);
+
     if (strcmp(buffer, "help") == 0) 
     {
         return HELP;
@@ -78,6 +80,8 @@ ParseResult parseCreateBgProcess(char* buffer)
 
 int parseResumeInFg(char* buffer)
 {
+    trim(buffer);
+
     int argument_count;
     char* args[MAX_ARGS];
 
@@ -94,6 +98,8 @@ int parseResumeInFg(char* buffer)
 
 int parseResumeInBg(char* buffer)
 {
+    trim(buffer);
+
     int argument_count;
     char* args[MAX_ARGS];
 

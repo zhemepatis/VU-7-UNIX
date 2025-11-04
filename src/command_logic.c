@@ -78,8 +78,14 @@ void executeCommand(Command command, char* buffer)
 
 void executeHelp()
 {
-    // TODO: add full implementation
-    printf("Printing help\n");
+    printf("SUPPORTED COMMANDS:\n");
+    printf("& operator\t\t- command followed by this operator is executed in background\n");
+    printf("jobs\t\t\t- lists jobs\n");
+    printf("fg [process-number]\t- resumes job with specified number in foreground\n");
+    printf("bg [process-number]\t- resumes job with specified number in background\n");
+    printf("kill [process-number]\t- kills job with specified number\n");
+    printf("help\t\t\t- prints help\n");
+    printf("exit\t\t\t- exits shell\n");
 }
 
 void executeExit()

@@ -11,7 +11,6 @@ void createProccess(char* command, ProcessType type)
         return;
     }
 
-
     // execute command (child)
     if (fork_result == 0)
     {

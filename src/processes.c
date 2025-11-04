@@ -143,13 +143,14 @@ void resumeProcess(int process_num, ProcessType type)
     }
 
     Process process = (*process_ptr);
-    pid_t process_id = process.process_id;
     
-    changeProcessState(process.state, RUNNING);
-    changeProcessType(process.type, type);
-
+    changeProcessState(process_num, RUNNING);
+    changeProcessType(process_num, type);
+    
     if (type == FOREGROUND)
     {
+        pid_t process_id = process.process_id;
+        
         // giving console control to child process
         signal(SIGTTOU, SIG_IGN);
         tcsetpgrp(STDIN_FILENO, process_id);
@@ -166,26 +167,26 @@ void resumeProcess(int process_num, ProcessType type)
     }
 }
 
-void changeProcessState(pid_t process_id, ProcessState new_state)
+void changeProcessState(int process_num, ProcessState new_state)
 {
-    Process* process = getByProcessId(process_id);
-    if (process == NULL)
+    Process* process_ptr = getByProcessNum(process_num);
+    if (process_ptr == NULL)
     {
         return;
     }
 
-    (*process).state = new_state;
+    (*process_ptr).state = new_state;
 }
 
-void changeProcessType(pid_t process_id, ProcessType new_type)
+void changeProcessType(int process_num, ProcessType new_type)
 {
-    Process* process = getByProcessId(process_id);
-    if (process == NULL)
+    Process* process_ptr = getByProcessNum(process_num);
+    if (process_ptr == NULL)
     {
         return;
     }
 
-    (*process).type = new_type;
+    (*process_ptr).type = new_type;
 }
 
 Process* getByProcessId(pid_t process_id)

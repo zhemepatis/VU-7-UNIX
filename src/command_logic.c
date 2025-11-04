@@ -86,10 +86,18 @@ void executeExit()
 
 void executeJobs()
 {
+    printf("process count: %d\n", process_count);
+
     for (int i = 0; i < process_count; ++i)
     {
         char* status;
         Process curr_process = process_list[i];
+
+        if (curr_process.state == READY)
+        {
+            printf("[%d] %d READY\t%s\n", i + 1, curr_process.process_id, curr_process.command);
+            continue;
+        }
 
         if (curr_process.state == RUNNING)
         {
@@ -99,7 +107,14 @@ void executeJobs()
 
         if (curr_process.state == STOPPED)
         {
-            printf("[%d] %d STOPPING\t%s\n", i + 1, curr_process.process_id, curr_process.command);
+            printf("[%d] %d STOPPED\t%s\n", i + 1, curr_process.process_id, curr_process.command);
+            continue;
+        }
+
+        if (curr_process.state == DONE)
+        {
+            printf("[%d] %d DONE\t%s\n", i + 1, curr_process.process_id, curr_process.command);
+            continue;
         }
     }
 }

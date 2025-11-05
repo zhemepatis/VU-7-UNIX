@@ -29,8 +29,10 @@
     Process* getByProcessId(pid_t process_id);
 
     void addProcessToList(pid_t process_id, char* command, ProcessType type);
+
     void changeProcessState(int process_num, ProcessState new_state);
     void changeProcessType(int process_num, ProcessType new_type);
+    
     void removeProcessFromList(int process_num);
 
 #endif

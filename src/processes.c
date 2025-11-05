@@ -37,11 +37,6 @@ void parentProcess(char* command, pid_t child_process_id, ProcessType type)
 
 void resumeProcess(int process_num, ProcessType type)
 {
-    if (process_num > process_count)
-    {
-        return;
-    }
-
     Process* process_ptr = getByProcessNum(process_num);
     if (process_ptr == NULL)
     {
@@ -267,7 +262,6 @@ void removeProcessFromList(int process_num)
     for (int i = process_idx; i < process_count - 1; ++i)
     {
         process_list[i] = process_list[i + 1];
-        process_list[i].process_num = i;
     }
 
     process_count--;

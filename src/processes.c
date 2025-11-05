@@ -76,33 +76,6 @@ void resumeProcess(int process_num, ProcessType type)
     }
 }
 
-void childProcess(char* command, pid_t process_id, ProcessType type)
-{
-    setpgid(0, 0);
-
-    // initialize process behaviour on external signals
-    signal(SIGINT, SIG_DFL);
-    signal(SIGTSTP, SIG_DFL);
-    signal(SIGTTOU, SIG_DFL);
-    
-    signal(SIGCHLD, &onChildSignal);
-
-    if (type == BACKGROUND)
-    {
-        printf("Background process (pid: %d) has been started\n", process_id);
-    }
-
-    // get args
-    int argument_count;
-    char* args[MAX_ARGS];
-    
-    split(command, args, &argument_count, MAX_ARGS - 1);
-    args[argument_count] = NULL;
-    
-    // run the command
-    execvp(args[0], args);
-}
-
 void waitForProcess(pid_t process_id)
 {
     Process* process_ptr = getByProcessId(process_id);
@@ -172,6 +145,33 @@ void onChildSignal(int signal) {
             continue;
         }
     }
+}
+
+void childProcess(char* command, pid_t process_id, ProcessType type)
+{
+    setpgid(0, 0);
+
+    // initialize process behaviour on external signals
+    signal(SIGINT, SIG_DFL);
+    signal(SIGTSTP, SIG_DFL);
+    signal(SIGTTOU, SIG_DFL);
+    
+    signal(SIGCHLD, &onChildSignal);
+
+    if (type == BACKGROUND)
+    {
+        printf("Background process (pid: %d) has been started\n", process_id);
+    }
+
+    // get args
+    int argument_count;
+    char* args[MAX_ARGS];
+    
+    split(command, args, &argument_count, MAX_ARGS - 1);
+    args[argument_count] = NULL;
+    
+    // run the command
+    execvp(args[0], args);
 }
 
 Process* getByProcessId(pid_t process_id)

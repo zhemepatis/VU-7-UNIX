@@ -17,20 +17,20 @@
     #include "string_operations.h"
 
     void createProccess(char* command, ProcessType type);
+
     void parentProcess(char* command, pid_t child_process_id, ProcessType type);
-    void childProcess(char* command, pid_t process_id, ProcessType type);
-    
+    void resumeProcess(int process_num, ProcessType type);
     void waitForProcess(pid_t process_id);
     void onChildSignal(int signal);
+
+    void childProcess(char* command, pid_t process_id, ProcessType type);
 
     Process* getByProcessNum(int process_num);
     Process* getByProcessId(pid_t process_id);
 
     void addProcessToList(pid_t process_id, char* command, ProcessType type);
-    void removeProcessFromList(pid_t process_id);
-
     void changeProcessState(int process_num, ProcessState new_state);
     void changeProcessType(int process_num, ProcessType new_type);
-    void resumeProcess(int process_num, ProcessType type);
+    void removeProcessFromList(int process_num);
 
 #endif

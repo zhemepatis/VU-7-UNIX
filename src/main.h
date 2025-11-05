@@ -16,6 +16,4 @@
     void initShell();
     void startShell();
     
-    void printPrompt(char* user_name, char* host_name, char* curr_dir);
-    
 #endif

@@ -208,7 +208,7 @@ void addProcessToList(pid_t process_id, char* command, ProcessType type)
     }
     
     // add process to list
-    process_list[process_count].process_num = process_list[process_count - 1].process_num + 1;
+    process_list[process_count].process_num = process_count == 0 ? 1 : process_list[process_count - 1].process_num + 1;
     process_list[process_count].process_id = process_id;
     strcpy(process_list[process_count].command, command);
     process_list[process_count].type = type;

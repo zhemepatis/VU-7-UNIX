@@ -9,7 +9,7 @@ int main()
     while(1) {
         printf("While loop iteration %d\n", iteration);
         
-        sleep(3);
+        sleep(1);
         
         iteration++;
     }

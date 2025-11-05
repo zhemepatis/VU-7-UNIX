@@ -151,7 +151,7 @@ void onChildSignal(int signal) {
         // check if it's finished background process
         if (WIFEXITED(termination_status) && process.type == BACKGROUND)
         {
-            printf("Background process (pid: %d) finished its job\n", process_id);
+            printf("[%d] Process finished its job (pid: %d)\n", process.process_num, process.process_id);
             removeProcessFromList(process.process_num);
             continue;
         }
@@ -159,7 +159,7 @@ void onChildSignal(int signal) {
         // check if it's externally terminated job
         if (WIFSIGNALED(termination_status))
         {
-            printf("Process (pid: %d) was terminated by external signal\n", process_id);
+            printf("[%d] Process was terminated by external signal (pid: %d)\n", process.process_num, process.process_id);
             removeProcessFromList(process.process_num);
             continue;
         }
@@ -168,7 +168,7 @@ void onChildSignal(int signal) {
         if (WIFSTOPPED(termination_status))
         {
             changeProcessState(process_id, STOPPED);
-            printf("Process (pid: %d) was stopped\n", process_id);
+            printf("[%d] Process was stopped (pid: %d)\n", process.process_num, process.process_id);
             continue;
         }
     }

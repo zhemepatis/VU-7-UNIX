@@ -103,25 +103,25 @@ void executeJobs()
 
         if (curr_process.state == READY)
         {
-            printf("[%d] %d READY\t%s\n", curr_process.process_num, curr_process.process_id, curr_process.command);
+            printf("[%d] %d\tREADY\t\t%s\n", curr_process.process_num, curr_process.process_id, curr_process.command);
             continue;
         }
 
         if (curr_process.state == RUNNING)
         {
-            printf("[%d] %d RUNNING\t%s\n", curr_process.process_num, curr_process.process_id, curr_process.command);
+            printf("[%d] %d\tRUNNING\t\t%s\n", curr_process.process_num, curr_process.process_id, curr_process.command);
             continue;
         }
 
         if (curr_process.state == STOPPED)
         {
-            printf("[%d] %d STOPPED\t%s\n", curr_process.process_num, curr_process.process_id, curr_process.command);
+            printf("[%d] %d\tSTOPPED\t\t%s\n", curr_process.process_num, curr_process.process_id, curr_process.command);
             continue;
         }
 
         if (curr_process.state == DONE)
         {
-            printf("[%d] %d DONE\t%s\n", curr_process.process_num, curr_process.process_id, curr_process.command);
+            printf("[%d] %d\tDONE\t\t%s\n", curr_process.process_num, curr_process.process_id, curr_process.command);
             continue;
         }
     }

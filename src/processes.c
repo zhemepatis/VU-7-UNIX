@@ -194,12 +194,15 @@ Process* getByProcessId(pid_t process_id)
 
 Process* getByProcessNum(int process_num)
 {
-    if (process_num > process_count)
+    for (int i = 0; i < process_count; ++i)
     {
-        return NULL;
+        if (process_list[i].process_num == process_num)
+        {
+            return &(process_list[i]);
+        }
     }
 
-    return &(process_list[process_num - 1]);
+    return NULL;
 }
 
 void addProcessToList(pid_t process_id, char* command, ProcessType type)
@@ -210,7 +213,7 @@ void addProcessToList(pid_t process_id, char* command, ProcessType type)
     }
     
     // add process to list
-    process_list[process_count].process_num = process_count + 1;
+    process_list[process_count].process_num = process_list[process_count - 1].process_num + 1;
     process_list[process_count].process_id = process_id;
     strcpy(process_list[process_count].command, command);
     process_list[process_count].type = type;
@@ -242,14 +245,26 @@ void changeProcessType(int process_num, ProcessType new_type)
 }
 
 void removeProcessFromList(int process_num)
-{
-    if (process_num > process_count)
+{   
+    // find where process with specified process reside
+    int process_idx = -1;
+    for (int i = 0; i < process_count; ++i)
+    {
+        if (process_list[i].process_num == process_num)
+        {
+            process_idx = i;
+            break;
+        }
+    }
+
+    // check if process with specified number exists
+    if (process_idx == -1)
     {
         return;
     }
     
-    // remove process from processs list
-    for (int i = process_num; i < process_count - 1; ++i)
+    // remove process from list
+    for (int i = process_idx; i < process_count - 1; ++i)
     {
         process_list[i] = process_list[i + 1];
         process_list[i].process_num = i;

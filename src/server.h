@@ -8,9 +8,14 @@
     #include <sys/socket.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
+    #include <fcntl.h>
+    #include <errno.h>
+    #include <poll.h>
+    #include <stdbool.h>
 
     #include "constants.h"
 
     int main();
+    void processConnection(int client_socket_desc);
 
 #endif

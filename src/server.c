@@ -20,7 +20,7 @@ int main()
         perror("setsockopt");
         exit(EXIT_FAILURE);
     }
-    
+        
     struct sockaddr_in address;
     int addr_len = sizeof(address);
     
@@ -28,41 +28,91 @@ int main()
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(SERVER_PORT);
 
-    // bind socket to address + port
-    if (bind(server_socket_desc, (struct sockaddr *) &address, sizeof(address)) < 0)
+    // bind socket to specified address and port
+    int bind_result = bind(server_socket_desc, (struct sockaddr *) &address, sizeof(address));
+    if (bind_result < 0)
     {
         perror("bind");
         exit(EXIT_FAILURE);
     }
 
-    // mark socket as on ereceiving connections
-    if (listen(server_socket_desc, 3) < 0)
+    // set socket to non-blocking mode
+    int flags = fcntl(server_socket_desc, F_GETFL, 0);
+    fcntl(server_socket_desc, F_SETFL, flags | O_NONBLOCK);
+
+    // mark socket as receiving connections
+    int listen_result = listen(server_socket_desc, MAX_CONNECTIONS_ALLOWED);
+    if (listen_result < 0)
     {
         perror("listen");
+        close(server_socket_desc);
         exit(EXIT_FAILURE);
     }
 
     printf("Server is listening on port %d\n", SERVER_PORT);
 
-    // accept incoming client connection
-    int client_socket = accept(server_socket_desc, (struct sockaddr *) &address, (socklen_t*) &addr_len);
-    if (client_socket < 0)
+    while (true)
     {
-        perror("accept");
-        exit(EXIT_FAILURE);
+        // accept incoming client connection
+        int client_socket = accept(server_socket_desc, (struct sockaddr *) &address, (socklen_t*) &addr_len);
+
+        if (client_socket < 0)
+        {
+            // wait for connection
+            if (errno == EAGAIN)
+            {
+                struct pollfd polled_desc;
+                polled_desc.fd = server_socket_desc;
+                polled_desc.events = POLLIN;
+
+                int poll_result = poll(&polled_desc, 1, -1);
+                continue;
+            }
+
+            perror("accept");
+            break;
+        }
+
+        int fork_result = fork();
+        
+        // check if fork was successful
+        if (fork_result < 0)
+        {
+            perror("fork");
+            close(client_socket);
+            close(server_socket_desc);
+            exit(EXIT_FAILURE);
+        }
+
+        // check if it's child process
+        if (fork_result == 0)
+        {
+            // start connection processing
+            printf("Connection processing started\n");
+            processConnection(server_socket_desc);
+
+            // close connection processing
+            close(client_socket);
+            printf("Connection processing finished\n");
+
+            break;
+        }
     }
 
-    // read data from client
-    ssize_t valread = read(client_socket, buffer, BUFFER_SIZE);
-    printf("Client message: %s\n", buffer);
-
-    // send response to client
-    send(client_socket, response, strlen(response), 0);
-    printf("Response sent to client\n");
-
-    // close sockets
-    close(client_socket);
+    // close server socket
     close(server_socket_desc);
 
     return 0;
+}
+
+void processConnection(int client_socket_desc)
+{
+    sleep(5);
+
+    // ssize_t valread = read(client_socket, buffer, BUFFER_SIZE);
+    // printf("Client message: %s\n", buffer);
+
+    // send response to client
+    // send(client_socket, response, strlen(response), 0);
+    // printf("Response sent to client\n");
 }

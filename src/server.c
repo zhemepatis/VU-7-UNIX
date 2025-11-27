@@ -89,10 +89,7 @@ int main()
         {
             // start connection processing
             printf("Connection processing started\n");
-            processConnection(server_socket_desc);
-
-            // close connection processing
-            close(client_socket);
+            processConnection(client_socket);
             printf("Connection processing finished\n");
 
             break;
@@ -107,12 +104,24 @@ int main()
 
 void processConnection(int client_socket_desc)
 {
-    sleep(5);
+    char buffer[BUFFER_SIZE];
 
-    // ssize_t valread = read(client_socket, buffer, BUFFER_SIZE);
-    // printf("Client message: %s\n", buffer);
+    while (true)
+    {
+        readInfo(client_socket_desc, buffer);
 
-    // send response to client
-    // send(client_socket, response, strlen(response), 0);
-    // printf("Response sent to client\n");
+        Command command = parseCommand(buffer);
+
+        if (command == EXIT)
+        {
+            break;
+        }
+
+        executeCommand(command, client_socket_desc);
+
+        // clean buffer
+        memset(buffer, 0, strlen(buffer));
+    }
+
+    shutdown(client_socket_desc, SHUT_RDWR);
 }

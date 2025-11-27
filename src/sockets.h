@@ -1,5 +1,5 @@
-#ifndef SERVER_H
-    #define SERVER_H
+#ifndef SOCKETS_H
+    #define SOCKETS_H
 
     #include <stdio.h>
     #include <stdlib.h>
@@ -12,19 +12,10 @@
     #include <errno.h>
     #include <poll.h>
     #include <stdbool.h>
+    #include <time.h>
 
     #include "shared/constants.h"
-    #include "enums/command.h"
-
-    int main();
-    
-    void processConnection(int client_socket_desc);
-    
-    Command parseCommand(char* buffer);
-
-    void executeCommand(Command command, int client_socket_desc);
-    void executeGreetMe(int client_socket_desc);
-    void executeExit(int client_socket_desc);
+    #include "logs.h"
 
     void readInfo(int client_socket_desc, char* buffer);
     void sendInfo(int client_socket_desc, char* buffer);

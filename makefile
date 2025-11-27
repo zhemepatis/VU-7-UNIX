@@ -19,7 +19,10 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 # build executables
-$(BIN_DIR)/%.$(EXEC_EXT): $(OBJ_DIR)/%.o | $(BIN_DIR)
+$(BIN_DIR)/server.$(EXEC_EXT): $(OBJ_DIR)/server.o $(OBJ_DIR)/logs.o $(OBJ_DIR)/sockets.o $(OBJ_DIR)/commands.o | $(BIN_DIR)
+	gcc $^ -o $@
+
+$(BIN_DIR)/client.$(EXEC_EXT): $(OBJ_DIR)/client.o $(OBJ_DIR)/logs.o  | $(BIN_DIR)
 	gcc $^ -o $@
 
 # compile sources

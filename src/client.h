@@ -12,8 +12,10 @@
     #include <errno.h>
     #include <poll.h>
     #include <stdbool.h>
+    #include <time.h>
 
-    #include "constants.h"
+    #include "shared/constants.h"
+    #include "logs.h"
 
     int main();
     void processConnection(int client_socket_desc);

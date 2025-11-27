@@ -9,10 +9,6 @@ int main()
         perror("socket");
         exit(EXIT_FAILURE);
     }
-
-    // set socket to non-blocking mode
-    int flags = fcntl(server_socket_desc, F_GETFL, 0);
-    fcntl(server_socket_desc, F_SETFL, flags | O_NONBLOCK);
     
     // set socket options
     struct sockaddr_in server_address;
@@ -33,36 +29,6 @@ int main()
 
     // connect to the server
     int connect_result = connect(server_socket_desc, (struct sockaddr *) &server_address, sizeof(server_address));
-    
-    if (connect_result < 0)
-    {
-        // check if there were any actual errors on connection
-        if (errno != EINPROGRESS)
-        {
-            perror("connect");
-            
-            close(server_socket_desc);
-
-            exit(EXIT_FAILURE);
-        }
-
-        // wait for connection
-        struct pollfd pfd;
-        pfd.fd = server_socket_desc;
-        pfd.events = POLLOUT;
-
-        connect_result = poll(&pfd, 1, 5000);
-
-        // check if poll was successful
-        if (connect_result <= 0)
-        {
-            perror("poll");
-            
-            close(server_socket_desc);
-
-            exit(EXIT_FAILURE);
-        }
-    }
 
     printf("Connected to [%s] on port [%d]\n", SERVER_ADDRESS, SERVER_PORT);
 
@@ -78,18 +44,27 @@ int main()
 }
 
 void processConnection(int server_socket_desc)
-{
-    printf("Processing connection... \n");
+{    
+    char buffer[BUFFER_SIZE] = { 0 };
+    int buffer_length;
 
-    // send message to server
-    // char buffer[BUFFER_SIZE] = {0};
-    // const char *message = "Hello from TCP Client";
+    // send greetings command
+    strcpy(buffer, "greet-me");
+    buffer_length = strlen(buffer);
+    
+    logMessage("SERVER", buffer);
+    ssize_t send_result = send(server_socket_desc, buffer, BUFFER_SIZE, 0);
+    memset(buffer, 0, BUFFER_SIZE);
+    
+    // receive greetings
+    ssize_t recv_result = recv(server_socket_desc, buffer, BUFFER_SIZE, 0);
+    logMessage("SERVER", buffer);
+    memset(buffer, 0, BUFFER_SIZE);
+    
+    // send exit command
+    strcpy(buffer, "exit");
+    buffer_length = strlen(buffer);
 
-    // send(server_socket_desc, message, strlen(message), 0);
-    // printf("Message sent to server\n");
-
-    // // receive message from server
-    // ssize_t valread = read(server_socket_desc, buffer, BUFFER_SIZE);
-    // printf("Server response: %s\n", buffer);
+    logMessage("SERVER", buffer);
+    send_result = send(server_socket_desc, buffer, BUFFER_SIZE, 0);
 }
-

@@ -27,6 +27,8 @@ void executeGreetMe(int client_socket_desc)
     const char* buffer = "Hello, stranger!";
     int buffer_length = strlen(buffer);
 
+    sleep(20);
+
     sendInfo(client_socket_desc, buffer);
 }
 

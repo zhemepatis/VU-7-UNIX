@@ -55,6 +55,9 @@ void processConnection(int server_socket_desc)
     logMessage("SERVER", buffer);
     ssize_t send_result = send(server_socket_desc, buffer, BUFFER_SIZE, 0);
     memset(buffer, 0, BUFFER_SIZE);
+
+    // for multi-client simulation
+    sleep(20);
     
     // receive greetings
     ssize_t recv_result = recv(server_socket_desc, buffer, BUFFER_SIZE, 0);
